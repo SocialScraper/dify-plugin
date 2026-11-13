@@ -1,0 +1,30 @@
+identity:
+  author: socialscrape
+  name: socialscrape
+  label:
+    en_US: SocialScrape
+  description:
+    en_US: Video transcripts, profiles and a profile's latest posts from TikTok, Instagram, YouTube, X, Threads, Bluesky and more, in one response shape.
+  icon: icon.png
+  tags:
+    - social
+    - videos
+credentials_for_provider:
+  api_key:
+    type: secret-input
+    required: true
+    label:
+      en_US: SocialScrape API key
+    placeholder:
+      en_US: ss_live_...
+    help:
+      en_US: Sign up at socialscrape.dev and create a key in the dashboard under API keys. A new account starts with 100 free credits, no card needed.
+    url: https://socialscrape.dev/sign-up
+tools:
+  - tools/get_transcript.yaml
+  - tools/get_profile.yaml
+  - tools/list_profile_posts.yaml
+  - tools/get_credits.yaml
+extra:
+  python:
+    source: provider/socialscrape.py

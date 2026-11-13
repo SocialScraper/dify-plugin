@@ -1,0 +1,36 @@
+version: 0.1.0
+type: plugin
+author: socialscrape
+name: socialscrape
+label:
+  en_US: SocialScrape
+description:
+  en_US: Social media data in one response shape. Get video transcripts, profiles and a profile's latest posts from TikTok, Instagram, YouTube, X, Threads, Bluesky and more.
+icon: icon.png
+created_at: 2026-11-13T00:00:00Z
+privacy: PRIVACY.md
+resource:
+  memory: 67108864
+  permission: {}
+plugins:
+  tools:
+    - provider/socialscrape.yaml
+meta:
+  version: 0.0.1
+  arch:
+    - amd64
+    - arm64
+  runner:
+    language: python
+    version: "3.12"
+    entrypoint: main
+  minimum_dify_version: 1.0.0
+tags:
+  - social
+  - videos
+repo: https://github.com/SocialScraper/dify-plugin
+contact: hello@socialscrape.dev
+verified: false
+network:
+  domains:
+    - api.socialscrape.dev

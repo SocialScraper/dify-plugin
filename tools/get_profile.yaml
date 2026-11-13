@@ -1,0 +1,56 @@
+identity:
+  name: get_profile
+  author: socialscrape
+  label:
+    en_US: Get a profile
+description:
+  human:
+    en_US: Get a profile by its handle, with the name, biography, links, verification and follower counts.
+  llm: Get one social media profile by handle. Returns the name, biography, website link, verification, whether the account is private, and stats (followers, following, posts). The fields are the same on every platform; one a platform does not show is null.
+parameters:
+  - name: platform
+    type: select
+    required: true
+    label:
+      en_US: Platform
+    human_description:
+      en_US: The platform the profile is on.
+    llm_description: The platform the profile is on. One of instagram, tiktok, twitter (X), threads, bluesky, snapchat, twitch, truthsocial.
+    form: llm
+    options:
+      - value: instagram
+        label:
+          en_US: Instagram
+      - value: tiktok
+        label:
+          en_US: TikTok
+      - value: twitter
+        label:
+          en_US: X (Twitter)
+      - value: threads
+        label:
+          en_US: Threads
+      - value: bluesky
+        label:
+          en_US: Bluesky
+      - value: snapchat
+        label:
+          en_US: Snapchat
+      - value: twitch
+        label:
+          en_US: Twitch
+      - value: truthsocial
+        label:
+          en_US: Truth Social
+  - name: handle
+    type: string
+    required: true
+    label:
+      en_US: Handle
+    human_description:
+      en_US: The account handle, with or without the @.
+    llm_description: The account handle, for example nasa or @nasa. On Bluesky use the full handle such as bsky.app.
+    form: llm
+extra:
+  python:
+    source: tools/get_profile.py

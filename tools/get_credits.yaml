@@ -1,0 +1,13 @@
+identity:
+  name: get_credits
+  author: socialscrape
+  label:
+    en_US: Get credits
+description:
+  human:
+    en_US: Show the credits left on your SocialScrape team. Free.
+  llm: "Return the credits left on the SocialScrape team the API key belongs to. Free, it uses no credits."
+parameters: []
+extra:
+  python:
+    source: tools/get_credits.py

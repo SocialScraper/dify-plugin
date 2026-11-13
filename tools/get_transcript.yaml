@@ -1,0 +1,51 @@
+identity:
+  name: get_transcript
+  author: socialscrape
+  label:
+    en_US: Get a transcript
+description:
+  human:
+    en_US: Get the transcript of a video from its link. Works with YouTube, TikTok, Instagram, X, Facebook, LinkedIn, Reddit, Twitch clips, Kick clips and Rumble.
+  llm: Get the transcript of one video from its link. The platform is detected from the link (YouTube, TikTok, Instagram, X, Facebook, LinkedIn, Reddit, Twitch clips, Kick clips, Rumble). Returns the text with the platform, language, duration and source ("captions" or "ai"). If the result has status "processing", a long transcription is still running; call this tool again with the same link a minute later.
+parameters:
+  - name: url
+    type: string
+    required: true
+    label:
+      en_US: Video link
+    human_description:
+      en_US: The link to the video.
+    llm_description: The full link to the video, exactly as copied from the platform.
+    form: llm
+  - name: language
+    type: string
+    required: false
+    label:
+      en_US: Language
+    human_description:
+      en_US: Preferred caption language as a code such as en or es. Leave empty for the video's own language.
+    llm_description: Preferred caption language as a BCP 47 code such as en, es or pt-BR. Omit it for the video's default.
+    form: llm
+  - name: timestamps
+    type: boolean
+    required: false
+    default: false
+    label:
+      en_US: Timestamps
+    human_description:
+      en_US: Also return the transcript as timed lines.
+    llm_description: true also returns timed segments (start, end, text). Use it when you need to cite moments in the video.
+    form: llm
+  - name: allow_long_transcription
+    type: boolean
+    required: false
+    default: false
+    label:
+      en_US: Transcribe long audio
+    human_description:
+      en_US: Allow speech recognition on videos longer than 2 minutes that have no captions. This costs 5 credits per started minute of the whole video. Off, such a video answers with an error that names the cost and uses no credits.
+    llm_description: Set true only when the user accepts the cost of transcribing a long video without captions (5 credits per started minute). Default false.
+    form: form
+extra:
+  python:
+    source: tools/get_transcript.py

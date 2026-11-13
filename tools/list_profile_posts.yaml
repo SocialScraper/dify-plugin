@@ -1,0 +1,56 @@
+identity:
+  name: list_profile_posts
+  author: socialscrape
+  label:
+    en_US: List a profile's posts
+description:
+  human:
+    en_US: List the newest posts or videos of a profile, one page at a time.
+  llm: List the newest posts or videos a profile has published, newest first. Each post has its link, type, text, publish time and stats (views, likes, comments, shares). The result has next_cursor and has_more; pass next_cursor as cursor to read the next page.
+parameters:
+  - name: platform
+    type: select
+    required: true
+    label:
+      en_US: Platform
+    human_description:
+      en_US: The platform the profile is on.
+    llm_description: The platform the profile is on. One of instagram, tiktok, threads, bluesky, truthsocial.
+    form: llm
+    options:
+      - value: instagram
+        label:
+          en_US: Instagram
+      - value: tiktok
+        label:
+          en_US: TikTok
+      - value: threads
+        label:
+          en_US: Threads
+      - value: bluesky
+        label:
+          en_US: Bluesky
+      - value: truthsocial
+        label:
+          en_US: Truth Social
+  - name: handle
+    type: string
+    required: true
+    label:
+      en_US: Handle
+    human_description:
+      en_US: The account handle, with or without the @.
+    llm_description: The account handle, for example nasa or @nasa. On Bluesky use the full handle such as bsky.app.
+    form: llm
+  - name: cursor
+    type: string
+    required: false
+    label:
+      en_US: Cursor
+    human_description:
+      en_US: next_cursor from a previous call, to get the next page.
+    llm_description: next_cursor from a previous result, to fetch the next page. Omit for the first page.
+    form: llm
+extra:
+  python:
+    source: tools/list_profile_posts.py
