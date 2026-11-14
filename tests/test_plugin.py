@@ -218,6 +218,29 @@ class ProfileTests(unittest.TestCase):
                 messages(make_tool(ListProfilePostsTool), {"platform": "snapchat", "handle": "nasa"})
         self.assertEqual(api.requests, [])
 
+    def test_a_slow_profile_request_is_polled_and_never_returned_as_a_job(self):
+        with MockedApi({("GET", "/v1/instagram/profile"): [(202, JOB)],
+                        ("GET", "/v1/jobs/job_1"): [(202, JOB), (200, self.PROFILE)]}) as api:
+            result = json_of(messages(make_tool(GetProfileTool), {"platform": "instagram", "handle": "nasa"}))
+        self.assertEqual(result["handle"], "nasa")
+        self.assertNotIn("job_id", result)
+        self.assertEqual(len([r for r in api.requests if r.url.path == "/v1/jobs/job_1"]), 2)
+
+    def test_a_list_still_running_after_the_wait_is_an_error_not_an_empty_list(self):
+        ticks = iter(range(0, 10_000, 30))
+        with mock.patch.object(socialscrape_api.time, "monotonic", lambda: next(ticks)):
+            with MockedApi({("GET", "/v1/threads/profile/posts"): [(202, JOB)], ("GET", "/v1/jobs/job_1"): [(202, JOB)]}):
+                with self.assertRaises(ValueError) as ctx:
+                    messages(make_tool(ListProfilePostsTool), {"platform": "threads", "handle": "zuck"})
+        self.assertIn("job_1", str(ctx.exception))
+
+    def test_a_job_id_that_is_not_a_job_id_is_refused(self):
+        bad = ok({"object": "job", "job_id": "../account/credits", "status": "queued"}, charged=0)
+        with MockedApi({("GET", "/v1/instagram/profile"): [(202, bad)]}) as api:
+            with self.assertRaises(ValueError):
+                messages(make_tool(GetProfileTool), {"platform": "instagram", "handle": "nasa"})
+        self.assertEqual(len(api.requests), 1)
+
     def test_tiktok_posts_use_the_videos_route_and_pass_the_cursor(self):
         with MockedApi({("GET", "/v1/tiktok/profile/videos"): [(200, self.LIST)]}) as api:
             result = json_of(messages(make_tool(ListProfilePostsTool), {"platform": "tiktok", "handle": "nasa", "cursor": "c1"}))

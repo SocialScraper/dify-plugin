@@ -7,6 +7,7 @@ never appears in an error message.
 
 from __future__ import annotations
 
+import re
 import time
 from typing import Any, Callable, Optional
 
@@ -19,10 +20,12 @@ USER_AGENT = "socialscrape-dify-plugin/0.1.0"
 # while the request is held open, which can take 15 to 45 s, so reads get 60 s.
 TIMEOUT = httpx.Timeout(60.0, connect=10.0)
 
-# How long get_transcript waits for a long transcription job before handing
-# back the job id, and how often it checks. Dify gives a tool call 120 s in total.
+# Any request still running after about 25 s is answered with a job (HTTP 202).
+# How long a tool waits for that job before giving up, and how often it checks.
+# Dify gives a tool call 120 s in total.
 JOB_WAIT_SECONDS = 75.0
 JOB_POLL_SECONDS = 5.0
+JOB_ID = re.compile(r"^job_[A-Za-z0-9]+$")
 
 # Platforms whose profile is looked up by handle.
 PROFILE_PLATFORMS = ("instagram", "tiktok", "twitter", "threads", "bluesky", "snapchat", "twitch", "truthsocial")
@@ -108,6 +111,35 @@ class SocialScrapeClient:
             raise _error(response.status_code, payload)
         return response.status_code, payload
 
+    def _wait_for_job(self, payload: dict[str, Any]) -> tuple[dict[str, Any], Optional[str]]:
+        """Poll a queued job, for free, until it finishes or JOB_WAIT_SECONDS pass.
+
+        Returns the latest answer and, when the job is still running, its id.
+        A failed job raises its own error from the poll.
+        """
+        job_id = _job_id(payload)
+        if not job_id:
+            return payload, None
+        if not JOB_ID.match(job_id):
+            raise SocialScrapeError("SocialScrape queued a job without a usable job id.", code="upstream_error")
+        deadline = self._clock() + JOB_WAIT_SECONDS
+        while self._clock() < deadline:
+            self._sleep(JOB_POLL_SECONDS)
+            _, payload = self._get(f"/jobs/{job_id}")
+            if not _job_id(payload):
+                return payload, None
+        return payload, job_id
+
+    def _finished(self, payload: dict[str, Any]) -> dict[str, Any]:
+        """The finished answer, never a job: a job still running after the wait is an error."""
+        payload, running = self._wait_for_job(payload)
+        if running:
+            raise SocialScrapeError(
+                f"SocialScrape is still working on this request (job {running}). Try again in a minute.",
+                code="timeout",
+            )
+        return payload
+
     def credits(self) -> dict[str, Any]:
         _, payload = self._get("/account/credits")
         data = payload.get("data") or {}
@@ -115,12 +147,13 @@ class SocialScrapeClient:
 
     def profile(self, platform: str, handle: str) -> dict[str, Any]:
         _, payload = self._get(f"/{platform}/profile", {"handle": handle})
-        return _with_usage(payload)
+        return _with_usage(self._finished(payload))
 
     def profile_posts(self, platform: str, handle: str, cursor: Optional[str] = None) -> dict[str, Any]:
         # TikTok publishes videos only, so its list lives under /profile/videos.
         route = "videos" if platform == "tiktok" else "posts"
         _, payload = self._get(f"/{platform}/profile/{route}", {"handle": handle, "cursor": cursor})
+        payload = self._finished(payload)
         data = payload.get("data") or {}
         result = {
             "posts": data.get("items") or [],
@@ -141,24 +174,17 @@ class SocialScrapeClient:
         if allow_long:
             params["allow_long_transcription"] = "true"
         _, payload = self._get("/transcript", params)
-        job_id = _job_id(payload)
-        if job_id:
-            deadline = self._clock() + JOB_WAIT_SECONDS
-            while self._clock() < deadline:
-                self._sleep(JOB_POLL_SECONDS)
-                _, payload = self._get(f"/jobs/{job_id}")
-                if not _job_id(payload):
-                    break
-            else:
-                return {
-                    "status": "processing",
-                    "job_id": job_id,
-                    "url": url,
-                    "message": (
-                        "The transcription is still running. Call get_transcript again with the same link in a "
-                        "minute or two: the finished transcript is cached, so it uses credits only once."
-                    ),
-                }
+        payload, running = self._wait_for_job(payload)
+        if running:
+            return {
+                "status": "processing",
+                "job_id": running,
+                "url": url,
+                "message": (
+                    "The transcription is still running. Call get_transcript again with the same link in a "
+                    "minute or two: the finished transcript is cached, so it uses credits only once."
+                ),
+            }
         result = _with_usage(payload)
         if not timestamps:
             result.pop("segments", None)
