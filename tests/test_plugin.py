@@ -128,7 +128,7 @@ class ProviderTests(unittest.TestCase):
 
 
 class GetTranscriptTests(unittest.TestCase):
-    def test_transcript_with_text_variable_and_no_segments_by_default(self):
+    def test_transcript_with_text_output_and_no_segments_by_default(self):
         with MockedApi({("GET", "/v1/transcript"): [(200, TRANSCRIPT)]}) as api:
             msgs = messages(make_tool(GetTranscriptTool), {"url": " https://www.youtube.com/watch?v=jNQXAC9IVRw "})
         params = dict(api.requests[0].url.params)
@@ -137,8 +137,10 @@ class GetTranscriptTests(unittest.TestCase):
         self.assertEqual(result["platform"], "youtube")
         self.assertNotIn("segments", result)
         self.assertEqual(result["usage"], {"credits_charged": 1, "credits_remaining": 99, "cached": False})
-        variables = [m for m in msgs if m.type == ToolInvokeMessage.MessageType.VARIABLE]
-        self.assertEqual(variables[0].message.variable_name, "text")
+        texts = [m.message.text for m in msgs if m.type == ToolInvokeMessage.MessageType.TEXT]
+        self.assertEqual(texts, ["All right, so here we are"])
+        # Dify refuses a variable named "text", "json" or "files", so the tool must not send one.
+        self.assertEqual([m for m in msgs if m.type == ToolInvokeMessage.MessageType.VARIABLE], [])
 
     def test_timestamps_and_language_are_passed_on(self):
         with MockedApi({("GET", "/v1/transcript"): [(200, TRANSCRIPT)]}) as api:

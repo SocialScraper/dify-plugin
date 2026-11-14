@@ -26,7 +26,7 @@ Failed requests are free, and so is a repeated request answered from the cache.
 ## Usage
 
 - **In an agent:** add the SocialScrape tools and ask, for example, "What does this TikTok say?" followed by the video link, or "How many followers does @nasa have on Instagram, and what did they post last?" The agent can look up the profile, list its posts and fetch transcripts on its own.
-- **In a workflow:** add the **Get a transcript** node and pass a video link. It also outputs a `text` variable for the next node (an LLM, a knowledge base, a code node).
+- **In a workflow:** add the **Get a transcript** node and pass a video link. The node's `text` output is the transcript, ready for the next node (an LLM, a knowledge base, a code node), and `json` holds the full answer.
 
 A video longer than 2 minutes that has no captions is not transcribed unless you turn on **Transcribe long audio**, which costs 5 credits per started minute of the whole video. With it off, such a video answers with an error that names the cost and uses no credits. A long transcription can take longer than a tool call may wait; the tool then returns `status: "processing"` with a `job_id`. Run it again with the same link a minute or two later: the finished transcript is cached, so it uses credits only once.
 

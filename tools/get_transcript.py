@@ -18,6 +18,8 @@ class GetTranscriptTool(Tool):
         with SocialScrapeClient(self.runtime.credentials.get("api_key")) as client:
             result = client.transcript(url, language, timestamps, allow_long)
         yield self.create_json_message(result)
+        # The transcript goes out as a text message: that is what fills a tool node's `text` output.
+        # A variable named "text" is refused by Dify ("json", "text" and "files" are reserved names).
         text = result.get("text")
         if isinstance(text, str) and text:
-            yield self.create_variable_message("text", text)
+            yield self.create_text_message(text)
