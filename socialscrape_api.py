@@ -14,7 +14,7 @@ from typing import Any, Callable, Optional
 import httpx
 
 API_BASE = "https://api.socialscrape.dev/v1"
-USER_AGENT = "socialscrape-dify-plugin/0.1.0"
+USER_AGENT = "socialscrape-dify-plugin/0.1.1"
 
 # One request: 10 s to connect. A short video without captions is transcribed
 # while the request is held open, which can take 15 to 45 s, so reads get 60 s.

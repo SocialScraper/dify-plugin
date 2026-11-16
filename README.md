@@ -2,9 +2,9 @@
 
 Social media data inside your Dify agents and workflows, in one response shape for every platform.
 
-**Author:** socialscrape · **Version:** 0.1.0 · **Type:** tool
+**Author:** socialscrape · **Version:** 0.1.1 · **Type:** tool
 
-Source repository: https://github.com/SocialScraper/dify-plugin
+Website: [socialscrape.dev](https://socialscrape.dev/?utm_source=dify&utm_medium=integration&utm_campaign=dify-plugin) · Source repository: https://github.com/SocialScraper/dify-plugin
 
 ## What it does
 
@@ -19,7 +19,7 @@ Failed requests are free, and so is a repeated request answered from the cache.
 
 ## Setup
 
-1. Create a SocialScrape account at [socialscrape.dev/sign-up](https://socialscrape.dev/sign-up). A new account starts with 100 free credits, with no card needed.
+1. Create a SocialScrape account at [socialscrape.dev/sign-up](https://socialscrape.dev/sign-up?utm_source=dify&utm_medium=integration&utm_campaign=dify-plugin). A new account starts with 100 free credits, with no card needed.
 2. Create an API key in the dashboard under **API keys**.
 3. In Dify, install the SocialScrape plugin from the Marketplace, open **Tools > SocialScrape > Authorize**, and paste the key. The key is checked against the API before it is saved.
 
@@ -41,7 +41,7 @@ See [PRIVACY.md](PRIVACY.md). The plugin sends the video links and account handl
 
 ## Support
 
-hello@socialscrape.dev · API docs: [socialscrape.dev/docs](https://socialscrape.dev/docs)
+hello@socialscrape.dev · API docs: [socialscrape.dev/docs](https://socialscrape.dev/docs?utm_source=dify&utm_medium=integration&utm_campaign=dify-plugin)
 
 ## Development
 

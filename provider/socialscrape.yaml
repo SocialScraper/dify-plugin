@@ -19,7 +19,7 @@ credentials_for_provider:
       en_US: ss_live_...
     help:
       en_US: Sign up at socialscrape.dev and create a key in the dashboard under API keys. A new account starts with 100 free credits, no card needed.
-    url: https://socialscrape.dev/sign-up
+    url: https://socialscrape.dev/sign-up?utm_source=dify&utm_medium=integration&utm_campaign=dify-plugin
 tools:
   - tools/get_transcript.yaml
   - tools/get_profile.yaml
